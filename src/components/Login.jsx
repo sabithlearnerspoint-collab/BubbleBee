@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, User, LogIn, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,15 +17,15 @@ const Login = () => {
     setError('');
 
     try {
-      // TODO: Connect this strictly to Supabase Auth once keys are provided
-      console.log('Logging in with:', email);
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) throw signInError;
       
-      // Temporary mock authentication delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate navigation to the dashboard after successful login
-      // navigate('/dashboard');
-      setError('Database connection required. Please configure Supabase keys first.');
+      // Successfully logged in
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Failed to login');
     } finally {
