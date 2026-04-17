@@ -41,21 +41,21 @@ const Dashboard = () => {
         <div style={{ padding: '30px' }}>
           <img src="/logo_fixed.png" alt="Logo" style={{ width: '130px', transform: 'scale(1.5)', transformOrigin: 'left center' }} />
           <div style={{ marginTop: '40px', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--surface-border)' }}>
-             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MEMBER</p>
-             <p style={{ fontWeight: 700, fontSize: '1.1rem' }}>{profile.full_name}</p>
-             <div style={{ marginTop: '8px' }}>
-               <span style={{ fontSize: '0.65rem', background: 'var(--primary)', color: 'black', padding: '3px 8px', borderRadius: '4px', fontWeight: 900 }}>{profile.role}</span>
-             </div>
-          </div>
-        </div>
-
-        <nav style={{ flex: 1, padding: '0 15px' }}>
-          <NavItem icon={CalendarIcon} label="Job Board" id="bookings" active={activeTab} onClick={setActiveTab} />
-          {profile.role !== 'STAFF' && <NavItem icon={DollarSign} label="Financials" id="expenses" active={activeTab} onClick={setActiveTab} />}
-          {profile.role !== 'STAFF' && <NavItem icon={Sliders} label="Schedules" id="slots" active={activeTab} onClick={setActiveTab} />}
-          {profile.role === 'OWNER' && <NavItem icon={Users} label="User Management" id="users" active={activeTab} onClick={setActiveTab} />}
-          {profile.role === 'OWNER' && <NavItem icon={PieChart} label="Analytics" id="reports" active={activeTab} onClick={setActiveTab} />}
-        </nav>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MEMBER</p>
+              <p style={{ fontWeight: 700, fontSize: '1.1rem' }}>{profile?.full_name || 'Staff Member'}</p>
+              <div style={{ marginTop: '8px' }}>
+                <span style={{ fontSize: '0.65rem', background: 'var(--primary)', color: 'black', padding: '3px 8px', borderRadius: '4px', fontWeight: 900 }}>{profile?.role || 'STAFF'}</span>
+              </div>
+           </div>
+         </div>
+ 
+         <nav style={{ flex: 1, padding: '0 15px' }}>
+           <NavItem icon={CalendarIcon} label="Job Board" id="bookings" active={activeTab} onClick={setActiveTab} />
+           {profile?.role !== 'STAFF' && <NavItem icon={DollarSign} label="Financials" id="expenses" active={activeTab} onClick={setActiveTab} />}
+           {profile?.role !== 'STAFF' && <NavItem icon={Sliders} label="Schedules" id="slots" active={activeTab} onClick={setActiveTab} />}
+           {profile?.role === 'OWNER' && <NavItem icon={Users} label="User Management" id="users" active={activeTab} onClick={setActiveTab} />}
+           {profile?.role === 'OWNER' && <NavItem icon={PieChart} label="Analytics" id="reports" active={activeTab} onClick={setActiveTab} />}
+         </nav>
 
         <button onClick={handleLogout} style={{ margin: '20px', padding: '15px', background: 'rgba(255,100,100,0.05)', border: 'none', color: '#ff6b6b', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
           <LogOut size={18} /> Logout
@@ -63,7 +63,7 @@ const Dashboard = () => {
       </aside>
 
       <main style={{ flex: 1, overflowY: 'auto', padding: '40px' }}>
-        {activeTab === 'bookings' && <BookingsManager role={profile.role} userId={profile.id} />}
+        {activeTab === 'bookings' && <BookingsManager role={profile?.role || 'STAFF'} userId={profile?.id} />}
         {activeTab === 'expenses' && <ExpenseManager profile={profile} />}
         {activeTab === 'slots' && <SlotManager />}
         {activeTab === 'users' && <UsersManager />}
