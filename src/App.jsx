@@ -45,13 +45,7 @@ function App() {
         <Route path="/" element={<PublicWebsite />} />
         <Route path="/login" element={<Login />} />
         {/* Placeholder for the backend dashboard to be built next */}
-        <Route path="/dashboard" element={
-          <div style={{ padding: '100px 20px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Staff Dashboard</h2>
-            <p>Database synchronization pending Supabase keys.</p>
-            <a href="/login" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Back to Login</a>
-          </div>
-        } />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
   );

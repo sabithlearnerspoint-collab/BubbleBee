@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, CreditCard, Send, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, CreditCard, Send, CheckCircle, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const Booking = () => {
   const [formData, setFormData] = useState({
@@ -13,25 +14,70 @@ const Booking = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage('');
     
-    // Construct WhatsApp message
-    const message = `*New Booking Request!*\n\nName: ${formData.name}\nService: ${formData.serviceType}\nDate: ${formData.date}\nTime: ${formData.time}\nPhone: ${formData.phone}\nEmail: ${formData.email}`;
-    // The user's WhatsApp number (placeholder, user should replace this)
-    const waNumber = "917025603738"; 
-    const waURL = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
-    
-    // Simulate form submisson & show success message
-    setIsSubmitted(true);
-    
-    // Open WhatsApp in new tab
-    window.open(waURL, '_blank');
+    try {
+      // 1. Check current slot availability (Capacity check)
+      const { data: currentBookings, error: countError } = await supabase
+        .from('bookings')
+        .select('id')
+        .eq('date', formData.date)
+        .eq('time_slot', formData.time);
+
+      if (countError) throw countError;
+
+      // Check specific slot capacity override
+      const { data: capacityLimit } = await supabase
+        .from('slot_capacity')
+        .select('max_capacity')
+        .eq('date', formData.date)
+        .eq('time_slot', formData.time)
+        .single();
+
+      const max = capacityLimit ? capacityLimit.max_capacity : 2;
+
+      if (currentBookings.length >= max) {
+        setErrorMessage(`Sorry, the ${formData.time} slot on this date is fully booked (Max ${max} cars). Please pick another time.`);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Save to Database
+      const { error: insertError } = await supabase.from('bookings').insert([{
+        customer_name: formData.name,
+        customer_phone: formData.phone,
+        customer_email: formData.email,
+        service_type: formData.serviceType,
+        date: formData.date,
+        time_slot: formData.time,
+        status: 'PENDING'
+      }]);
+
+      if (insertError) throw insertError;
+
+      // 3. Construct WhatsApp message
+      const message = `*New Booking Request!*\n\nName: ${formData.name}\nService: ${formData.serviceType}\nDate: ${formData.date}\nTime: ${formData.time}\nPhone: ${formData.phone}\nEmail: ${formData.email}`;
+      const waNumber = "917025603738"; 
+      const waURL = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+      
+      setIsSubmitted(true);
+      window.open(waURL, '_blank');
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('Something went wrong. Please try again or contact us via WhatsApp.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -86,6 +132,11 @@ const Booking = () => {
           className="glass-card" 
           style={{ flex: '1 1 400px', padding: '40px' }}
         >
+          {errorMessage && (
+            <div style={{ padding: '12px', background: 'rgba(255,0,0,0.1)', border: '1px solid rgba(255,0,0,0.3)', color: '#ff6b6b', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem' }}>
+              {errorMessage}
+            </div>
+          )}
           {isSubmitted ? (
             <div style={{ textAlign: 'center', padding: '40px 20px' }}>
               <motion.div 
@@ -154,9 +205,14 @@ const Booking = () => {
                 </div>
               </div>
 
-              <button type="submit" className="btn-primary" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
-                Confirm Booking
-                <Send size={18} />
+              <button 
+                type="submit" 
+                className="btn-primary" 
+                disabled={loading}
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '10px', opacity: loading ? 0.7 : 1 }}
+              >
+                {loading ? 'Confirming Availability...' : 'Confirm Booking'}
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
             </form>
           )}
