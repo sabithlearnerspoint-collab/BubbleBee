@@ -247,6 +247,9 @@ const SlotManager = () => <div className="glass-card" style={{ padding: '30px' }
 const UsersManager = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newStaff, setNewStaff] = useState({ email: '', password: '', name: '' });
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -258,6 +261,30 @@ const UsersManager = () => {
     setLoading(false);
   }
 
+  async function handleAddStaff(e) {
+    e.preventDefault();
+    setError('');
+    try {
+      const { data, error: authError } = await supabase.auth.signUp({
+        email: newStaff.email,
+        password: newStaff.password,
+        options: {
+          data: { full_name: newStaff.name }
+        }
+      });
+
+      if (authError) throw authError;
+
+      // Note: With the SQL trigger we added earlier, the profile 
+      // will be created automatically in staff_profiles.
+      setShowAdd(false);
+      setNewStaff({ email: '', password: '', name: '' });
+      setTimeout(fetchUsers, 1500); // Small delay to let trigger finish
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function promoteUser(id, newRole) {
      await supabase.from('staff_profiles').update({ role: newRole }).eq('id', id);
      fetchUsers();
@@ -265,8 +292,30 @@ const UsersManager = () => {
 
   return (
     <div className="glass-card" style={{ padding: '30px' }}>
-      <h2 style={{ marginBottom: '25px', fontSize: '1.8rem' }}>Staff <span className="heading-gradient">Accounts</span></h2>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Current staff registered in the system. Use the SQL editor or Auth tab to add new email accounts first.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+        <h2 style={{ fontSize: '1.8rem' }}>Staff <span className="heading-gradient">Accounts</span></h2>
+        <button className="btn-primary" onClick={() => setShowAdd(true)}>+ Add Staff Member</button>
+      </div>
+
+      {showAdd && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card" style={{ padding: '30px', maxWidth: '400px', width: '100%' }}>
+              <h3 style={{ marginBottom: '20px' }}>Register New Staff</h3>
+              {error && <p style={{ color: '#ff6b6b', fontSize: '0.8rem', marginBottom: '10px' }}>{error}</p>}
+              <form onSubmit={handleAddStaff} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                 <input placeholder="Full Name" required value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} />
+                 <input placeholder="Email" type="email" required value={newStaff.email} onChange={e => setNewStaff({...newStaff, email: e.target.value})} />
+                 <input placeholder="Password" type="password" required value={newStaff.password} onChange={e => setNewStaff({...newStaff, password: e.target.value})} />
+                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <button type="submit" className="btn-primary" style={{ flex: 1 }}>Create Account</button>
+                    <button type="button" onClick={() => setShowAdd(false)} className="btn-outline" style={{ flex: 1 }}>Cancel</button>
+                 </div>
+              </form>
+           </motion.div>
+        </div>
+      )}
+
+      <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Manage roles for your team. New members added will appear here instantly.</p>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
         {users.map(u => (
