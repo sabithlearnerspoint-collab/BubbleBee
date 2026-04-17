@@ -6,6 +6,7 @@ import Services from './components/Services';
 import Booking from './components/Booking';
 import CursorBee from './components/CursorBee';
 import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
 const PublicWebsite = () => (
   <>
