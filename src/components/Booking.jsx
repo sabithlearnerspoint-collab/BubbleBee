@@ -131,7 +131,7 @@ const Booking = () => {
                 <select name="serviceType" value={formData.serviceType} onChange={handleChange}>
                   <option value="Bubble Wash Main">Bubble Wash Main</option>
                   <option value="Interior Detailing">Interior Detailing</option>
-                  <option value="Ceramic Coating">Ceramic Coating</option>
+                  <option value="Ceramic / Graphene / Borophene Coating">Ceramic / Graphene / Borophene Coating (Specialty)</option>
                   <option value="Engine Bay Detailing">Engine Bay Detailing</option>
                 </select>
               </div>

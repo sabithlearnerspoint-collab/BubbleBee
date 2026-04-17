@@ -14,8 +14,9 @@ const services = [
   },
   {
     icon: <Shield size={32} color="var(--primary)" />,
-    title: 'Ceramic Coating',
-    description: 'Long-lasting nano-ceramic protection that enhances gloss and shields your paint from UV rays and contaminants.'
+    title: 'Ceramic / Graphene / Borophene Coating',
+    description: 'Our top-tier specialty shielding. Advanced nano-level protection utilizing state-of-the-art Borophene technology for unmatched durability and hyper-gloss.',
+    isSpecialty: true
   },
   {
     icon: <Gauge size={32} color="var(--primary)" />,
@@ -51,8 +52,15 @@ const Services = () => {
             className="glass-card" 
             style={{ padding: '40px 30px', textAlign: 'left' }}
           >
-            <div style={{ marginBottom: '24px', background: 'rgba(255,215,0,0.1)', width: '64px', height: '64px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {service.icon}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+              <div style={{ background: 'rgba(255,170,0,0.1)', width: '64px', height: '64px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {service.icon}
+              </div>
+              {service.isSpecialty && (
+                <span style={{ background: 'var(--primary)', color: '#000', fontSize: '0.8rem', fontWeight: 800, padding: '4px 12px', borderRadius: '50px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Specialty
+                </span>
+              )}
             </div>
             <h3 style={{ fontSize: '1.5rem', marginBottom: '16px', color: '#fff' }}>{service.title}</h3>
             <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>{service.description}</p>
