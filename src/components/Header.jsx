@@ -14,7 +14,7 @@ const Header = () => {
       alignItems: 'center'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <img src="/logo_fixed.png" alt="Bubble Bee Logo" style={{ width: '320px', height: 'auto' }} />
+        <img src="/logo_fixed.png" alt="Bubble Bee Logo" style={{ height: '60px', transform: 'scale(2.5)', transformOrigin: 'left center', marginLeft: '20px' }} />
       </div>
       
       <nav style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
